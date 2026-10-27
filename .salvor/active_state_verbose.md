@@ -49,3 +49,14 @@ Domain Learning (`DL:task-mutation-atomic-audit`) is intentionally NOT pre-creat
   rendered, form create → task #5 at top, counts updated; screenshot `docs/screenshots/taskflow.png`.
 - Scripts: `npm run verify:audit` (curl + sqlite3), `npm run demo:reset-db -- --yes` (deletes only
   `api/data/taskflow.db*`; refuses while the API runs).
+
+## 2026-10-27 — AMA demo run-sheet
+- `docs/AMA_DEMO_SCRIPT.md`: on-camera prompts (Claude: locate txn → run atomicity tests → zero-credit MCP capture
+  attempt → `salvor deposit` → retry capture as `Review: unreviewed` → `salvor agentic-capture-review` → commit with
+  `Salvor-Contribution: agent` + push; ChatGPT: MCP search/fetch → independent GitHub source check → branch
+  `chatgpt/task-status-audit` → PATCH /api/tasks/:id/status with `task.status_changed` audit in one txn + tests → PR
+  citing the DL as provisional; stretch: GPT DL on branch, merge, Claude pull + reconcile prompt, no ratification).
+- Reset checklist is opt-in: `npm run demo:reset-db -- --yes`; rehearsal captures are undone with `git revert`, never
+  reset/force-push; billing ledger never reset from this repo.
+- Dependencies on `salvor-mcp` (empty repo at build time) are listed in the script; tool names deliberately not
+  hard-coded in prompts. The capture was NOT pre-populated.

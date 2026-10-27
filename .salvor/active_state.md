@@ -6,6 +6,7 @@
 ## Tests: npm test → 32 pass (vitest projects shared/api/web); atomicity proof = api/test/taskRepository.test.ts "task creation audit atomicity" (SQLite RAISE(ABORT) triggers, no mocks); mutation check: removing txn fails 3 tests
 ## LEARNED FAILURES: none
 ## web: list(badges, read-only status)+create form → POST; validateDraft reuses shared schema (web/src/taskView.ts)
-## Open: demo script (docs/AMA_DEMO_SCRIPT.md); PATCH /api/tasks/:id/status intentionally UNIMPLEMENTED (ChatGPT demo deliverable)
+## Demo: docs/AMA_DEMO_SCRIPT.md (Claude capture via Salvor MCP → push → ChatGPT GitHub PR). DL:task-mutation-atomic-audit NOT pre-created — on-camera only
+## Open: salvor-mcp deps unverified here (MCP server/tools, INSUFFICIENT_CREDITS, salvor CLI, ChatGPT tunnel); PATCH /api/tasks/:id/status intentionally UNIMPLEMENTED (ChatGPT demo deliverable)
 ## Capture: AGENT_CAPTURE=provisional (RULES §10.5) — agent captures land `Review: unreviewed`; DEC only `Review: proposed`
 ## Last Brain Audit: 2026-10-27 (interval 3d — RULES §10.3)
