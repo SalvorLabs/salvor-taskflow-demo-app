@@ -40,3 +40,12 @@ Domain Learning (`DL:task-mutation-atomic-audit`) is intentionally NOT pre-creat
 - Request ids switched to `randomUUID()` (Fastify default `req-N` repeats across restarts, weak for audit correlation).
 - Live smoke (scratch DB, port 3011): POST → 201, audit row `task.created` actor `demo-operator`, PATCH
   `/api/tasks/1/status` → 404 (intentionally unimplemented).
+
+## 2026-10-27 — web UI + docs
+- `web/src/App.tsx` (list + create form), `web/src/api.ts` (fetch client), `web/src/taskView.ts` (validateDraft via
+  `CreateTaskInputSchema`, countByStatus, sortTasks, insertTask, formatCreatedAt — 7 unit tests). Status is shown as
+  a badge only; footer says status changes are not supported yet, so the UI does not imply the PATCH feature exists.
+- Verified in a browser via the Playwright MCP (capture only — Playwright is NOT a project dependency): seeded list
+  rendered, form create → task #5 at top, counts updated; screenshot `docs/screenshots/taskflow.png`.
+- Scripts: `npm run verify:audit` (curl + sqlite3), `npm run demo:reset-db -- --yes` (deletes only
+  `api/data/taskflow.db*`; refuses while the API runs).

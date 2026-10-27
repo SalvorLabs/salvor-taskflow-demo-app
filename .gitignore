@@ -24,3 +24,6 @@ api/data/
 .DS_Store
 .idea/
 .vscode/
+
+# Local MCP tool output
+.playwright-mcp/

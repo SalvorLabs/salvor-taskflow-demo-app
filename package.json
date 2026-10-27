@@ -2,7 +2,7 @@
   "name": "taskflow",
   "version": "0.1.0",
   "private": true,
-  "description": "TaskFlow — a small task manager used as the Salvor cross-vendor engineering-memory demo",
+  "description": "TaskFlow \u2014 a small task manager used as the Salvor cross-vendor engineering-memory demo",
   "type": "module",
   "workspaces": [
     "shared",
@@ -21,7 +21,8 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify:audit": "bash scripts/verify-audit.sh"
+    "verify:audit": "bash scripts/verify-audit.sh",
+    "demo:reset-db": "bash scripts/reset-demo-db.sh"
   },
   "devDependencies": {
     "concurrently": "^9.2.5",

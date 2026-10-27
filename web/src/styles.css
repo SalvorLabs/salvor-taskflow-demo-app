@@ -1,0 +1,165 @@
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --text: #1c2330;
+  --muted: #667085;
+  --border: #e4e7ec;
+  --accent: #3b5bdb;
+  --error: #c92a2a;
+  --todo-bg: #eef2ff;
+  --todo-fg: #3b5bdb;
+  --prog-bg: #fff4e6;
+  --prog-fg: #d9480f;
+  --done-bg: #ebfbee;
+  --done-fg: #2b8a3e;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+.header h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+form {
+  display: grid;
+  gap: 12px;
+}
+label {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+input,
+textarea,
+select {
+  font: inherit;
+  font-weight: 400;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-color: var(--error);
+}
+button {
+  justify-self: start;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.error {
+  color: var(--error);
+  font-size: 13px;
+  font-weight: 400;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 12px;
+}
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.list-header h2 {
+  margin: 0;
+}
+.counts {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
+.tasks {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.task {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.task-main {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.task-title {
+  font-weight: 600;
+}
+.task-desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+.task-meta {
+  display: grid;
+  justify-items: end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.badge-todo {
+  background: var(--todo-bg);
+  color: var(--todo-fg);
+}
+.badge-in_progress {
+  background: var(--prog-bg);
+  color: var(--prog-fg);
+}
+.badge-completed {
+  background: var(--done-bg);
+  color: var(--done-fg);
+}

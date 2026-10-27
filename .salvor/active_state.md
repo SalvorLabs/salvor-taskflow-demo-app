@@ -5,6 +5,7 @@
 ## Current Delta to Published Logic: api baseline landed — GET/POST /api/tasks, GET /api/audit-events(?taskId); createTask = db.transaction{INSERT tasks; INSERT audit_events(task.created, actor, ts, meta{requestId uuid, after})} (api/src/taskRepository.ts); seed via same path (actor=seed)
 ## Tests: npm test → 32 pass (vitest projects shared/api/web); atomicity proof = api/test/taskRepository.test.ts "task creation audit atomicity" (SQLite RAISE(ABORT) triggers, no mocks); mutation check: removing txn fails 3 tests
 ## LEARNED FAILURES: none
-## Open: web UI + README + demo script; PATCH /api/tasks/:id/status intentionally UNIMPLEMENTED (ChatGPT demo deliverable)
+## web: list(badges, read-only status)+create form → POST; validateDraft reuses shared schema (web/src/taskView.ts)
+## Open: demo script (docs/AMA_DEMO_SCRIPT.md); PATCH /api/tasks/:id/status intentionally UNIMPLEMENTED (ChatGPT demo deliverable)
 ## Capture: AGENT_CAPTURE=provisional (RULES §10.5) — agent captures land `Review: unreviewed`; DEC only `Review: proposed`
 ## Last Brain Audit: 2026-10-27 (interval 3d — RULES §10.3)
