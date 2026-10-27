@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
-import { CreateTaskInputSchema, toValidationIssues, type ApiError } from '@taskflow/shared';
+import {
+  CreateTaskInputSchema,
+  UpdateTaskStatusInputSchema,
+  toValidationIssues,
+  type ApiError,
+} from '@taskflow/shared';
 import type { TaskRepository } from './taskRepository.js';
 
 export interface AppOptions {
@@ -29,6 +34,32 @@ export function buildApp({ repo, actor, logger = false }: AppOptions): FastifyIn
     }
     const task = repo.createTask(parsed.data, { actor, requestId: request.id });
     return reply.code(201).send(task);
+  });
+
+  app.patch<{ Params: { id: string } }>('/api/tasks/:id/status', async (request, reply) => {
+    const id = Number(request.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      const body: ApiError = {
+        error: 'ValidationError',
+        message: 'Task ID must be a positive integer',
+      };
+      return reply.code(400).send(body);
+    }
+    const parsed = UpdateTaskStatusInputSchema.safeParse(request.body ?? {});
+    if (!parsed.success) {
+      const body: ApiError = {
+        error: 'ValidationError',
+        message: 'Invalid status update',
+        issues: toValidationIssues(parsed.error),
+      };
+      return reply.code(400).send(body);
+    }
+    const task = repo.updateTaskStatus(id, parsed.data.status, { actor, requestId: request.id });
+    if (!task) {
+      const body: ApiError = { error: 'NotFound', message: 'Task not found' };
+      return reply.code(404).send(body);
+    }
+    return reply.code(200).send(task);
   });
 
   // Read-only view of the audit trail so the demo can show the row written with each mutation.

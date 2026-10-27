@@ -27,6 +27,10 @@ export const CreateTaskInputSchema = z
 export type CreateTaskInput = z.input<typeof CreateTaskInputSchema>;
 export type ValidCreateTaskInput = z.output<typeof CreateTaskInputSchema>;
 
+/** The only accepted payload for PATCH /api/tasks/:id/status. */
+export const UpdateTaskStatusInputSchema = z.object({ status: TaskStatusSchema }).strict();
+export type ValidUpdateTaskStatusInput = z.output<typeof UpdateTaskStatusInputSchema>;
+
 export const TaskSchema = z.object({
   id: z.number().int().positive(),
   title: z.string(),

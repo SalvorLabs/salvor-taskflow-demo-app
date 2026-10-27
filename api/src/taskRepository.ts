@@ -12,6 +12,7 @@ export interface TaskRepository {
   listTasks(): Task[];
   getTask(id: number): Task | undefined;
   createTask(input: ValidCreateTaskInput, ctx: MutationContext): Task;
+  updateTaskStatus(id: number, status: Task['status'], ctx: MutationContext): Task | undefined;
   listAuditEvents(filter?: { taskId?: number }): AuditEvent[];
   countTasks(): number;
 }
@@ -66,6 +67,7 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
     `INSERT INTO audit_events (action, task_id, actor, created_at, metadata)
      VALUES (@action, @taskId, @actor, @createdAt, @metadata)`,
   );
+  const updateTaskStatus = db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?');
   const selectAudit = db.prepare<[], AuditRow>('SELECT * FROM audit_events ORDER BY id');
   const selectAuditByTask = db.prepare<[number], AuditRow>(
     'SELECT * FROM audit_events WHERE task_id = ? ORDER BY id',
@@ -91,6 +93,30 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
     return toTask(selectById.get(taskId)!);
   });
 
+  // Preserve the observed audit-atomicity pattern for this new mutation.
+  // Provisional DL:task-mutation-atomic-audit motivated this implementation;
+  // the behavior is independently testable against real SQLite rollback.
+  const updateTaskStatusTx = db.transaction(
+    (id: number, status: Task['status'], ctx: MutationContext): Task | undefined => {
+      const before = selectById.get(id);
+      if (!before) return undefined; // No mutation and no audit event for an unknown task.
+      const now = clock().toISOString();
+      updateTaskStatus.run(status, now, id);
+      insertAudit.run({
+        action: 'task.status_changed',
+        taskId: id,
+        actor: ctx.actor,
+        createdAt: now,
+        metadata: JSON.stringify({
+          requestId: ctx.requestId ?? null,
+          before: { status: before.status },
+          after: { status },
+        }),
+      });
+      return toTask(selectById.get(id)!);
+    },
+  );
+
   return {
     listTasks: () => selectAll.all().map(toTask),
     getTask: (id) => {
@@ -98,6 +124,7 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
       return row ? toTask(row) : undefined;
     },
     createTask: (input, ctx) => createTaskTx(input, ctx),
+    updateTaskStatus: (id, status, ctx) => updateTaskStatusTx(id, status, ctx),
     listAuditEvents: (filter) =>
       (filter?.taskId === undefined ? selectAudit.all() : selectAuditByTask.all(filter.taskId)).map(
         toAuditEvent,
