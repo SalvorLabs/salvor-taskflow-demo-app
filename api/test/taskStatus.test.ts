@@ -5,7 +5,11 @@ import { openDatabase, type Db } from '../src/db.js';
 import { breakAuditInserts, count, FIXED_NOW, setup } from './helpers.js';
 import type { FastifyInstance } from 'fastify';
 
-const createInput = { title: 'Finish AMA prep', description: 'Follow the evidence', status: 'todo' as const };
+const createInput = {
+  title: 'Finish AMA prep',
+  description: 'Follow the evidence',
+  status: 'todo' as const,
+};
 const ctx = { actor: 'demo-operator', requestId: 'req-status-1' };
 
 describe('task status change and atomic audit logging', () => {
@@ -49,7 +53,9 @@ describe('task status change and atomic audit logging', () => {
     db = s.db;
     const task = s.repo.createTask(createInput, ctx);
     breakAuditInserts(db);
-    expect(() => s.repo.updateTaskStatus(task.id, 'completed', ctx)).toThrow('audit store unavailable');
+    expect(() => s.repo.updateTaskStatus(task.id, 'completed', ctx)).toThrow(
+      'audit store unavailable',
+    );
     expect(s.repo.getTask(task.id)).toEqual(task);
     expect(s.repo.listAuditEvents({ taskId: task.id })).toHaveLength(1);
     expect(count(db, 'tasks')).toBe(1);
@@ -73,7 +79,11 @@ describe('task status change and atomic audit logging', () => {
     const changes = s.repo.listAuditEvents({ taskId: task.id }).slice(1);
     expect(changes.map((e) => e.metadata)).toEqual([
       { requestId: ctx.requestId, before: { status: 'todo' }, after: { status: 'in_progress' } },
-      { requestId: ctx.requestId, before: { status: 'in_progress' }, after: { status: 'completed' } },
+      {
+        requestId: ctx.requestId,
+        before: { status: 'in_progress' },
+        after: { status: 'completed' },
+      },
     ]);
   });
 
@@ -83,7 +93,9 @@ describe('task status change and atomic audit logging', () => {
     const task = s.repo.createTask(createInput, ctx);
     app = buildApp({ repo: s.repo, actor: 'web-demo' });
     const response = await app.inject({
-      method: 'PATCH', url: '/api/tasks/' + task.id + '/status', payload: { status: 'completed' },
+      method: 'PATCH',
+      url: '/api/tasks/' + task.id + '/status',
+      payload: { status: 'completed' },
     });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toMatchObject({ id: task.id, status: 'completed' });
@@ -111,7 +123,9 @@ describe('task status change and atomic audit logging', () => {
     const task = s.repo.createTask(createInput, ctx);
     app = buildApp({ repo: s.repo, actor: ctx.actor });
     const response = await app.inject({
-      method: 'PATCH', url: '/api/tasks/' + task.id + '/status', payload,
+      method: 'PATCH',
+      url: '/api/tasks/' + task.id + '/status',
+      payload,
     });
     expect(response.statusCode).toBe(400);
     expect(s.repo.getTask(task.id)).toEqual(task);
@@ -123,7 +137,9 @@ describe('task status change and atomic audit logging', () => {
     db = s.db;
     app = buildApp({ repo: s.repo, actor: ctx.actor });
     const response = await app.inject({
-      method: 'PATCH', url: '/api/tasks/999/status', payload: { status: 'completed' },
+      method: 'PATCH',
+      url: '/api/tasks/999/status',
+      payload: { status: 'completed' },
     });
     expect(response.statusCode).toBe(404);
     expect(response.json()).toMatchObject({ error: 'NotFound' });
@@ -131,12 +147,15 @@ describe('task status change and atomic audit logging', () => {
   });
 
   it.each(['/api/tasks/abc/status', '/api/tasks/0/status', '/api/tasks/-1/status'])(
-    'rejects invalid task id %s with 400', async (url) => {
+    'rejects invalid task id %s with 400',
+    async (url) => {
       const s = setup();
       db = s.db;
       app = buildApp({ repo: s.repo, actor: ctx.actor });
       const response = await app.inject({
-        method: 'PATCH', url, payload: { status: 'completed' },
+        method: 'PATCH',
+        url,
+        payload: { status: 'completed' },
       });
       expect(response.statusCode).toBe(400);
       expect(count(db, 'audit_events')).toBe(0);
@@ -150,7 +169,9 @@ describe('task status change and atomic audit logging', () => {
     breakAuditInserts(db);
     app = buildApp({ repo: s.repo, actor: ctx.actor });
     const response = await app.inject({
-      method: 'PATCH', url: '/api/tasks/' + task.id + '/status', payload: { status: 'completed' },
+      method: 'PATCH',
+      url: '/api/tasks/' + task.id + '/status',
+      payload: { status: 'completed' },
     });
     expect(response.statusCode).toBe(500);
     expect(response.json()).toEqual({ error: 'InternalError', message: 'Task could not be saved' });

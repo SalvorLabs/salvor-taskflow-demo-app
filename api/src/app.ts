@@ -1,6 +1,11 @@
 import { randomUUID } from 'node:crypto';
 import Fastify, { type FastifyError, type FastifyInstance } from 'fastify';
-import { CreateTaskInputSchema, UpdateTaskStatusInputSchema, toValidationIssues, type ApiError } from '@taskflow/shared';
+import {
+  CreateTaskInputSchema,
+  UpdateTaskStatusInputSchema,
+  toValidationIssues,
+  type ApiError,
+} from '@taskflow/shared';
 import type { TaskRepository } from './taskRepository.js';
 
 export interface AppOptions {
@@ -34,7 +39,10 @@ export function buildApp({ repo, actor, logger = false }: AppOptions): FastifyIn
   app.patch<{ Params: { id: string } }>('/api/tasks/:id/status', async (request, reply) => {
     const id = Number(request.params.id);
     if (!Number.isSafeInteger(id) || id <= 0) {
-      const body: ApiError = { error: 'ValidationError', message: 'Task ID must be a positive integer' };
+      const body: ApiError = {
+        error: 'ValidationError',
+        message: 'Task ID must be a positive integer',
+      };
       return reply.code(400).send(body);
     }
     const parsed = UpdateTaskStatusInputSchema.safeParse(request.body ?? {});

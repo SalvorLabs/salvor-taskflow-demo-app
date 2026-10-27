@@ -67,9 +67,7 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
     `INSERT INTO audit_events (action, task_id, actor, created_at, metadata)
      VALUES (@action, @taskId, @actor, @createdAt, @metadata)`,
   );
-  const updateTaskStatus = db.prepare(
-    'UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?',
-  );
+  const updateTaskStatus = db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?');
   const selectAudit = db.prepare<[], AuditRow>('SELECT * FROM audit_events ORDER BY id');
   const selectAuditByTask = db.prepare<[number], AuditRow>(
     'SELECT * FROM audit_events WHERE task_id = ? ORDER BY id',
