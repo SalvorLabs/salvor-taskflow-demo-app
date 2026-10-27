@@ -60,3 +60,23 @@ Domain Learning (`DL:task-mutation-atomic-audit`) is intentionally NOT pre-creat
   reset/force-push; billing ledger never reset from this repo.
 - Dependencies on `salvor-mcp` (empty repo at build time) are listed in the script; tool names deliberately not
   hard-coded in prompts. The capture was NOT pre-populated.
+
+## 2026-10-27 — Rehearsal return leg: PR #1 (ChatGPT) verified on rehearsal/salvor-handoff
+- PR #1 `chatgpt/task-status-audit-rehearsal` → `rehearsal/salvor-handoff` (commits a835416 feat, 0c847dc GPT DL,
+  ed1f4e3 prettier) was merged by the operator as `1c9643e` at 11:17Z; `main` stays at `6e74158`. Local = remote.
+- Code review: `updateTaskStatusTx` = `db.transaction` { SELECT before → UPDATE tasks(status, updated_at) → INSERT
+  audit_events(task.status_changed, actor, created_at, {requestId, before, after}) }; unknown id → undefined before any
+  write; route validates id (positive safe integer) and body (`UpdateTaskStatusInputSchema`, strict) → 400; 404 on
+  missing; the existing error handler maps a thrown audit failure to 500 `Task could not be saved`.
+- Executed: `npm test` 7 files / 54 pass (incl. GPT's 14 in `api/test/taskStatus.test.ts`, 8 in
+  `shared/test/updateTaskStatus.test.ts`), `npm run build` ok. Independent script (not the PR's tests): 3 transitions
+  with before/after metadata + requestId + actor, 5 invalid payloads → 400 with no audit rows, 5 invalid ids → 400,
+  missing task → 404 with no audit row, own RAISE(ABORT) trigger on audit_events → 500 with status + updated_at rolled
+  back and no partial row, works again once the trigger is dropped: 21/21.
+- Both learnings treated as hypotheses: the GPT DL's own evidence item 5 ("tests not yet executed by ChatGPT") is now
+  satisfied by this run; the artifact itself is frozen (not edited). No DOMAIN_REF/RULES change; nothing ratified.
+- Salvor surfaces: `salvor agentic-capture-review` lists both DLs (`Review: unreviewed`, original `Contributed-by`
+  preserved: `claude-code/2.1.311` and `ChatGPT/GPT-6`); MCP read surface `search "atomic audit status"` returns both
+  first; `fetch` returns full content + metadata for each.
+- Handoff Claude → ChatGPT → GitHub → Claude: verified end to end on the rehearsal branch.
+
