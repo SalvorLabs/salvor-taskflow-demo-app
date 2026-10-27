@@ -18,7 +18,7 @@ one `db.transaction(...)`). Entry point `src/server.ts`. No external systems; no
 - Request/response shapes come from `@taskflow/shared` (zod); do not redefine them here.
 
 ## Build
-- `npm run build -w api` (tsc type-check + emit to `dist/`); `npm test -w api`.
+- `npm run build -w api` (tsc type-check only — the api runs from TS source via `tsx`); `npm test -w api`.
 
 For codebase tree: use Serena MCP `get_symbols_overview`.
 For domain logic: see `.salvor/DOMAIN_REF.md`. For infra/ops: see `.salvor/INFRA.md`.

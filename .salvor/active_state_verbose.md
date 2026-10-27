@@ -26,3 +26,17 @@ GitNexus — CLI v1.6.9, `--index-only` supported, MCP configured (user scope), 
 Demo intent: the baseline ships GET/POST /api/tasks with an atomic task+audit transaction and a rollback test. The
 PATCH /api/tasks/:id/status endpoint is intentionally left unimplemented for the ChatGPT Web leg, and the on-camera
 Domain Learning (`DL:task-mutation-atomic-audit`) is intentionally NOT pre-created — it is captured live via the Salvor MCP.
+
+## 2026-10-27 — api + shared baseline
+- Stack: npm workspaces (`shared`, `api`, `web`), TypeScript ESM, Fastify 5, better-sqlite3 12, zod 3, Vitest 3 (root
+  `vitest.config.ts` `projects`). api runs from TS via `tsx`; `npm run build` type-checks api/shared and builds web.
+- Atomicity: `createTaskRepository().createTask` wraps the `tasks` INSERT and the `audit_events` INSERT in one
+  `db.transaction`. better-sqlite3 rolls back on any throw, so an audit failure removes the task and a task failure
+  never reaches the audit insert. DB-level guards: CHECKs on status/title/actor, `json_valid(metadata)`, FK to tasks.
+- Evidence: `api/test/taskRepository.test.ts` › "task creation audit atomicity" (4 tests) and `api/test/app.test.ts`
+  › "returns 500 and persists neither row when the audit insert fails". Failures are injected with real SQLite
+  `RAISE(ABORT)` triggers on `:memory:` DBs (helpers in `api/test/helpers.ts`), not mocks. Negative control: replacing
+  `db.transaction(` with an identity wrapper made 3 of those tests fail; restored → all pass.
+- Request ids switched to `randomUUID()` (Fastify default `req-N` repeats across restarts, weak for audit correlation).
+- Live smoke (scratch DB, port 3011): POST → 201, audit row `task.created` actor `demo-operator`, PATCH
+  `/api/tasks/1/status` → 404 (intentionally unimplemented).
