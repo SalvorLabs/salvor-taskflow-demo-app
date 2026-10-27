@@ -32,3 +32,4 @@ operator ratifies it through the Brain Audit gate. The commit that introduces it
 | Date | ID | File | Category | Subject | One-line takeaway |
 |------|----|------|----------|---------|-------------------|
 | 2026-10-27 | DL:task-mutation-atomic-audit | [2026-10-27-AGENT-task-mutation-atomic-audit.md](2026-10-27-AGENT-task-mutation-atomic-audit.md) | AGENT | api, sqlite, audit_events, task-mutations, better-sqlite3 | Task mutations should preserve audit consistency atomically, so failed audit writes cannot leave untracked state changes. (unreviewed) |
+| 2026-10-27 | DL:status-change-atomic-audit-rehearsal | [2026-10-27-AGENT-status-change-atomic-audit-rehearsal.md](2026-10-27-AGENT-status-change-atomic-audit-rehearsal.md) | AGENT | api, sqlite, audit_events, status-transitions, cross-vendor-handoff | GPT-authored status change transaction pattern; test execution pending (unreviewed) |
