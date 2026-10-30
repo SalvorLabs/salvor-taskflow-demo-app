@@ -12,6 +12,7 @@ export interface TaskRepository {
   listTasks(): Task[];
   getTask(id: number): Task | undefined;
   createTask(input: ValidCreateTaskInput, ctx: MutationContext): Task;
+  updateTaskStatus(id: number, status: Task['status'], ctx: MutationContext): Task | undefined;
   listAuditEvents(filter?: { taskId?: number }): AuditEvent[];
   countTasks(): number;
 }
@@ -62,6 +63,7 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
     `INSERT INTO tasks (title, description, status, created_at, updated_at)
      VALUES (@title, @description, @status, @now, @now)`,
   );
+  const updateStatus = db.prepare('UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?');
   const insertAudit = db.prepare(
     `INSERT INTO audit_events (action, task_id, actor, created_at, metadata)
      VALUES (@action, @taskId, @actor, @createdAt, @metadata)`,
@@ -91,6 +93,22 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
     return toTask(selectById.get(taskId)!);
   });
 
+  // Read, update and audit in a single transaction. Audit failure rolls back the status change.
+  const updateTaskStatusTx = db.transaction((id: number, status: Task['status'], ctx: MutationContext) => {
+    const before = selectById.get(id);
+    if (!before) return undefined;
+    const now = clock().toISOString();
+    updateStatus.run(status, now, id);
+    insertAudit.run({
+      action: 'task.status_changed',
+      taskId: id,
+      actor: ctx.actor,
+      createdAt: now,
+      metadata: JSON.stringify({ requestId: ctx.requestId ?? null, before: { status: before.status }, after: { status } }),
+    });
+    return toTask(selectById.get(id)!);
+  });
+
   return {
     listTasks: () => selectAll.all().map(toTask),
     getTask: (id) => {
@@ -98,6 +116,7 @@ export function createTaskRepository(db: Db, clock: () => Date = () => new Date(
       return row ? toTask(row) : undefined;
     },
     createTask: (input, ctx) => createTaskTx(input, ctx),
+    updateTaskStatus: (id, status, ctx) => updateTaskStatusTx(id, status, ctx),
     listAuditEvents: (filter) =>
       (filter?.taskId === undefined ? selectAudit.all() : selectAuditByTask.all(filter.taskId)).map(
         toAuditEvent,
