@@ -60,3 +60,25 @@ Domain Learning (`DL:task-mutation-atomic-audit`) is intentionally NOT pre-creat
   reset/force-push; billing ledger never reset from this repo.
 - Dependencies on `salvor-mcp` (empty repo at build time) are listed in the script; tool names deliberately not
   hard-coded in prompts. The capture was NOT pre-populated.
+
+## 2026-10-30 — Cross-vendor handoff: capture → GPT PR → verify → merge → reconcile
+- Claude capture: first `salvor_capture_learning` call → INSUFFICIENT_CREDITS (need 5, have 0; nothing written, no
+  bypass). After funding (1000 credits) → `DL:task-mutation-atomic-audit`, Review: unreviewed, 5 debited (1000→995,
+  ledger 28775b0c-…). Committed 589d60f (trailer `Salvor-Contribution: agent`, unsigned) + pushed to recording branch.
+  Note: `origin` URL `SalvorLabs/demo-app` redirects to `SalvorLabs/salvor-taskflow-demo-app`.
+- GPT PR #2 (`chatgpt/status-audit-20261030-012241` → recording branch, head 8d1d865, 9 commits): PATCH
+  /api/tasks/:id/status, `UpdateTaskStatusInputSchema` (strict, `{status}` only), `updateTaskStatusTx` in one
+  `db.transaction`, tests `api/test/taskStatus.test.ts` (4) + `api/test/taskStatusHttp.test.ts` (14), GPT DL. GPT ran no
+  tests (stated in PR).
+- Claude verification on PR head: `npm test` 50/50 (7 files), `npm run build` exit 0. Negative control: replaced
+  `db.transaction(` with identity in `updateTaskStatusTx` → exactly 2 fail (repo rollback + HTTP 500 rollback),
+  37 pass; restored via `git checkout`, 39/39 api pass. No corrections needed.
+- Merge: PR was draft → merge refused; operator approved `gh pr ready` → `gh pr merge --merge --match-head-commit`
+  → merge commit 6e1c913 on recording branch (main untouched at 6bacecf). Pulled ff; post-merge 50/50 + build ok.
+  GitNexus re-indexed (`analyze --index-only`: 218 nodes / 347 edges / 13 clusters / 5 flows).
+- Reconciliation: domain-learnings are frozen receipts (README), so neither artifact was edited. Relationship: Claude
+  DL = creation evidence + recommendation for status updates; GPT DL = status-update implementation that follows that
+  recommendation, explicitly cites Claude DL as prior art. GPT DL's "tests not executed" caveat is now superseded by the
+  run above. Both remain Review: unreviewed with original Contributed-by (Claude: `claude-code/2.1.314`; GPT:
+  `OpenAI ChatGPT / GPT-6`). No ratification; DOMAIN_REF unchanged; ratification belongs to Brain Audit.
+- Open: same-status PATCH still writes an audit event (no transition rules) — design question for ratification.
