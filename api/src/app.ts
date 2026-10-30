@@ -33,7 +33,7 @@ export function buildApp({ repo, actor, logger = false }: AppOptions): FastifyIn
 
   app.patch<{ Params: { id: string } }>('/api/tasks/:id/status', async (request, reply) => {
     const id = Number(request.params.id);
-    if (!/^[1-9]\\d*$/.test(request.params.id) || !Number.isSafeInteger(id)) {
+    if (!/^[1-9]\d*$/.test(request.params.id) || !Number.isSafeInteger(id)) {
       const body: ApiError = { error: 'ValidationError', message: 'id must be a positive integer' };
       return reply.code(400).send(body);
     }
