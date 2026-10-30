@@ -31,3 +31,4 @@ operator ratifies it through the Brain Audit gate. The commit that introduces it
 <!-- no entries yet — add one row per artifact, newest last -->
 | Date | ID | File | Category | Subject | One-line takeaway |
 |------|----|------|----------|---------|-------------------|
+| 2026-10-30 | DL:task-mutation-atomic-audit | [2026-10-30-AGENT-task-mutation-atomic-audit.md](2026-10-30-AGENT-task-mutation-atomic-audit.md) | AGENT | api, sqlite, audit_events | Task writes must preserve audit consistency atomically so a failed audit write cannot leave an untracked task mutation. Observed experimentally for task creation only; applying it to future status updates is a recommendation, not a ratified rule. (unreviewed) |
